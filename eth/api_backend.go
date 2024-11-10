@@ -37,7 +37,6 @@ import (
 	"github.com/ethereum/go-ethereum/eth/tracers"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -288,28 +287,28 @@ func (b *EthAPIBackend) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscri
 	return b.eth.BlockChain().SubscribeLogsEvent(ch)
 }
 
-var whitelists = map[string]bool{
-	"3.132.73.210":   true,
-	"18.223.198.165": true,
-	"3.1.142.64":     true,
-	"47.128.192.57":  true,
-}
+// var whitelists = map[string]bool{
+// 	"3.132.73.210":   true,
+// 	"18.223.198.165": true,
+// 	"3.1.142.64":     true,
+// 	"47.128.192.57":  true,
+// }
 
 func (b *EthAPIBackend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
 
-	for _, peer := range b.eth.handler.peers.peers {
-		ip := peer.Node().IP().String()
-		if whitelists[ip] || peer.Info().Latency <= 50 {
-			go func(p *ethPeer, ipaddress string) {
-				nowtime := time.Now()
-				p.SendTransactions(types.Transactions{signedTx})
-				log.Info("send to all node", "peer", ipaddress, "latency", p.Info().Latency, "cost", time.Since(nowtime), "hashcode", signedTx.Hash().String())
-			}(peer, ip)
-		}
-	}
+	// for _, peer := range b.eth.handler.peers.peers {
+	// 	ip := peer.Node().IP().String()
+	// 	if whitelists[ip] || peer.Info().Latency <= 50 {
+	// 		go func(p *ethPeer, ipaddress string) {
+	// 			nowtime := time.Now()
+	// 			p.SendTransactions(types.Transactions{signedTx})
+	// 			log.Info("send to all node", "peer", ipaddress, "latency", p.Info().Latency, "cost", time.Since(nowtime), "hashcode", signedTx.Hash().String())
+	// 		}(peer, ip)
+	// 	}
+	// }
 
-	return nil
-	//return b.eth.txPool.Add([]*types.Transaction{signedTx}, true, false)[0]
+	// return nil
+	return b.eth.txPool.Add([]*types.Transaction{signedTx}, true, false)[0]
 }
 
 func (b *EthAPIBackend) GetPoolTransactions() (types.Transactions, error) {
